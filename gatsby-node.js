@@ -35,6 +35,7 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   const products = result.data.allMongodbProductsGetsby.edges || []
 
   products.forEach(({ node }) => {
+    console.log("Creating page for product: ", `/products/${node.productSlug}`)
     createPage({
       path: `/products/${node.productSlug}`,
       component: require.resolve("./src/templates/product-template.js"),
