@@ -1,5 +1,5 @@
 const heapdump = require("heapdump")
-
+const { graphql } = require("gatsby")
 // Trigger a heap dump for analysis
 heapdump.writeSnapshot("./heapdump-" + Date.now() + ".heapsnapshot")
 /**
