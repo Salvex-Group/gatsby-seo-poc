@@ -11,7 +11,7 @@ heapdump.writeSnapshot("./heapdump-" + Date.now() + ".heapsnapshot")
 /**
  * @type {import('gatsby').GatsbyNode['createPages']}
  */
-exports.createPages = async ({ actions }) => {
+exports.createPages = async ({ actions, graphql, reporter }) => {
   const { createPage } = actions
 
   const result = await graphql(`
@@ -20,28 +20,29 @@ exports.createPages = async ({ actions }) => {
         edges {
           node {
             id
+            productSlug
           }
         }
       }
     }
   `)
 
-  result.data.allMongodbProductsGetsby.edges.forEach(({ node }) => {
+  if (result.errors) {
+    reporter.panicOnBuild("Error while running GraphQL query.")
+    return
+  }
+
+  const products = result.data.allMongodbProductsGetsby.edges || []
+
+  products.forEach(({ node }) => {
     createPage({
       path: `/products/${node.productSlug}`,
       component: require.resolve("./src/templates/product-template.js"),
       context: {
-        id: node.id, // Pass the product id to the template context
+        id: node.id,
       },
       defer: true,
     })
-  })
-
-  createPage({
-    path: "/using-dsg",
-    component: require.resolve("./src/templates/using-dsg.js"),
-    context: {},
-    defer: true,
   })
 }
 
