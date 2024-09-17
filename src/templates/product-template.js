@@ -30,7 +30,7 @@ export default ProductTemplate
 
 export const query = graphql`
   query ($id: String!) {
-    allMongodbProductsGetsby(filter: { id: { eq: $id } }) {
+    allProduct(filter: { id: { eq: $id } }) {
       nodes {
         id
         productImage
