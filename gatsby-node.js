@@ -87,7 +87,7 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   }
 
   const products = result.data.allProduct.edges || []
-  const chunkedProducts = chunk(products, 1000) // Adjust chunk size as needed
+  const chunkedProducts = chunk(products, 10000) // Adjust chunk size as needed
 
   const productsPerPage = 50
   const numPages = Math.ceil(products.length / productsPerPage)
