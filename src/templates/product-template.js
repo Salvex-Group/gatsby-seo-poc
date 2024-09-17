@@ -3,7 +3,7 @@ import { graphql } from "gatsby"
 import { Helmet } from "react-helmet"
 
 const ProductTemplate = ({ data }) => {
-  const product = data.allMongodbProductsGetsby.nodes[0]
+  const product = data.allProduct.nodes[0]
   console.log("productproduct", product)
 
   return (
