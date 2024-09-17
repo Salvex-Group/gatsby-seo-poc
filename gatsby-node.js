@@ -11,6 +11,14 @@ heapdump.writeSnapshot("./heapdump-" + Date.now() + ".heapsnapshot")
 /**
  * @type {import('gatsby').GatsbyNode['createPages']}
  */
+const chunk = (array, size) => {
+  const chunkedArr = []
+  for (let i = 0; i < array.length; i += size) {
+    chunkedArr.push(array.slice(i, i + size))
+  }
+  return chunkedArr
+}
+
 exports.createPages = async ({ actions, graphql, reporter }) => {
   const { createPage } = actions
 
@@ -33,18 +41,28 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   }
 
   const products = result.data.allMongodbProductsGetsby.edges || []
+  const chunkedProducts = chunk(products, 1000) // Adjust chunk size as needed
 
-  products.forEach(({ node }) => {
-    console.log("Creating page for product: ", `/products/${node.productSlug}`)
-    createPage({
-      path: `/products/${node.productSlug}`,
-      component: require.resolve("./src/templates/product-template.js"),
-      context: {
-        id: node.id,
-      },
-      defer: true,
+  await Promise.all(
+    chunkedProducts.map(async productChunk => {
+      await Promise.all(
+        productChunk.map(({ node }) => {
+          console.log(
+            "Creating page for product: ",
+            `/products/${node.productSlug}`
+          )
+          return createPage({
+            path: `/products/${node.productSlug}`,
+            component: require.resolve("./src/templates/product-template.js"),
+            context: {
+              id: node.id,
+            },
+            defer: true,
+          })
+        })
+      )
     })
-  })
+  )
 }
 
 exports.onCreateWebpackConfig = ({ actions, stage }) => {
