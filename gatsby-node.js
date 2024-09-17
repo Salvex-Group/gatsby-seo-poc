@@ -112,10 +112,6 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
 
   chunkedProducts.map(productChunk => {
     productChunk.map(({ node }) => {
-      console.log(
-        "Creating page for product: ",
-        `/products/${node.productSlug}`
-      )
       return createPage({
         path: `/products/${node.productSlug}`,
         component: require.resolve("./src/templates/product-template.js"),
