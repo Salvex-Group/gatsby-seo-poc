@@ -13,7 +13,7 @@ const generateProduct = index => {
 
 // Generate 500,000 records
 const records = []
-const recordCount = 50000
+const recordCount = 100000
 
 for (let i = 0; i < recordCount; i++) {
   records.push(generateProduct(i))
@@ -121,6 +121,7 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
         component: require.resolve("./src/templates/product-template.js"),
         context: {
           id: node.id,
+          productSlug: node.productSlug,
         },
         defer: true,
       })

@@ -1,32 +1,23 @@
 import React from "react"
 import { graphql } from "gatsby"
-import { Helmet } from "react-helmet"
 
-const ProductTemplate = ({ data }) => {
+const ProductTemplate = props => {
+  console.log("data", props)
+  const { data } = props
   const product = data.allProduct.nodes[0]
   console.log("productproduct", product)
 
   return (
-    <>
-      <Helmet>
-        <title>{product.productName || product.productName}</title>
-        <meta
-          name="description"
-          content={
-            product.productName || `Details about ${product.productSlug}`
-          }
-        />
-      </Helmet>
-      <div>
-        <h1>{product.productName + " " + product.productSlug}</h1>
-        <img src={product.productImage} alt={product.name} />
-        <p>{product.description}</p>
-      </div>
-    </>
+    <div>
+      <h1>{product.productName + " " + product.productSlug}</h1>
+      <img src={product.productImage} alt={product.name} />
+      <p>{product.description}</p>
+    </div>
   )
 }
 
 export default ProductTemplate
+export { Head } from "../components/head"
 
 export const query = graphql`
   query ($id: String!) {
@@ -36,6 +27,7 @@ export const query = graphql`
         productImage
         productName
         productSlug
+        description
       }
     }
   }
