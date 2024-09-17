@@ -1,6 +1,5 @@
 const heapdump = require("heapdump")
 const { graphql } = require("gatsby")
-heapdump.writeSnapshot("./heapdump-" + Date.now() + ".heapsnapshot")
 // Function to generate a single product record
 const generateProduct = index => {
   return {
@@ -13,7 +12,7 @@ const generateProduct = index => {
 
 // Generate 500,000 records
 const records = []
-const recordCount = 50001
+const recordCount = 100000
 
 for (let i = 0; i < recordCount; i++) {
   records.push(generateProduct(i))
@@ -88,7 +87,7 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   }
 
   const products = result.data.allProduct.edges || []
-  const chunkedProducts = chunk(products, 10000) // Adjust chunk size as needed
+  const chunkedProducts = chunk(products, 1000) // Adjust chunk size as needed
 
   const productsPerPage = 50
   const numPages = Math.ceil(products.length / productsPerPage)
@@ -110,9 +109,9 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
     })
   })
 
-  chunkedProducts.map(productChunk => {
-    productChunk.map(({ node }) => {
-      return createPage({
+  chunkedProducts.forEach((productChunk, index) => {
+    productChunk.forEach(({ node }) => {
+      createPage({
         path: `/products/${node.productSlug}`,
         component: require.resolve("./src/templates/product-template.js"),
         context: {
@@ -122,6 +121,9 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
         defer: true,
       })
     })
+
+    // Generate heap snapshot after processing each chunk
+    heapdump.writeSnapshot(`./heapdump-${index}-${Date.now()}.heapsnapshot`)
   })
 }
 
