@@ -1,5 +1,4 @@
 // src/components/ProductStyles.js
-import React from "react"
 import "./products.css" // Import the CSS file
 
 const ProductStyles = () => {
