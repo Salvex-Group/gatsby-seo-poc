@@ -1,7 +1,54 @@
 const heapdump = require("heapdump")
 const { graphql } = require("gatsby")
-// Trigger a heap dump for analysis
 heapdump.writeSnapshot("./heapdump-" + Date.now() + ".heapsnapshot")
+// Function to generate a single product record
+const generateProduct = index => {
+  return {
+    productName: `Product name ${index + 1}`,
+    productSlug: `product-${index + 1}`,
+    description: `Product description ${index + 1}`,
+    productImage: `https://placehold.co/600x400?text=Product+name+${index + 1}`,
+  }
+}
+
+// Generate 500,000 records
+const records = []
+const recordCount = 500000
+
+for (let i = 0; i < recordCount; i++) {
+  records.push(generateProduct(i))
+}
+
+exports.sourceNodes = async ({
+  actions,
+  createNodeId,
+  createContentDigest,
+}) => {
+  const { createNode } = actions
+
+  // Read and parse the JSON file
+  const data = records
+
+  // Create nodes from JSON data
+  data.forEach(product => {
+    const nodeContent = JSON.stringify(product)
+
+    const nodeMeta = {
+      id: createNodeId(`product-${product.productSlug}`),
+      parent: null,
+      children: [],
+      internal: {
+        type: "Product",
+        mediaType: "application/json",
+        content: nodeContent,
+        contentDigest: createContentDigest(product),
+      },
+    }
+
+    const node = Object.assign({}, product, nodeMeta)
+    createNode(node)
+  })
+}
 /**
  * Implement Gatsby's Node APIs in this file.
  *
@@ -24,7 +71,7 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
 
   const result = await graphql(`
     {
-      allMongodbProductsGetsby {
+      allProduct {
         edges {
           node {
             id
@@ -40,8 +87,8 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
     return
   }
 
-  const products = result.data.allMongodbProductsGetsby.edges || []
-  const chunkedProducts = chunk(products, 1000) // Adjust chunk size as needed
+  const products = result.data.allProduct.edges || []
+  const chunkedProducts = chunk(products, 10000) // Adjust chunk size as needed
 
   await Promise.all(
     chunkedProducts.map(async productChunk => {
