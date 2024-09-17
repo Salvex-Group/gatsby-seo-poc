@@ -1,0 +1,38 @@
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.product-table th,
+.product-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.product-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.product-table img {
+  display: block;
+  margin: 0 auto;
+}
+
+.pagination {
+  margin-top: 20px;
+}
+
+.pagination a {
+  margin: 0 10px;
+  padding: 10px;
+  text-decoration: none;
+  color: #007acc;
+  font-weight: bold;
+}
+
+.pagination a:hover {
+  text-decoration: underline;
+}
