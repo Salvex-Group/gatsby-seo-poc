@@ -13,7 +13,7 @@ const generateProduct = index => {
 
 // Generate 500,000 records
 const records = []
-const recordCount = 500000
+const recordCount = 50000
 
 for (let i = 0; i < recordCount; i++) {
   records.push(generateProduct(i))
@@ -90,26 +90,42 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   const products = result.data.allProduct.edges || []
   const chunkedProducts = chunk(products, 10000) // Adjust chunk size as needed
 
-  await Promise.all(
-    chunkedProducts.map(async productChunk => {
-      await Promise.all(
-        productChunk.map(({ node }) => {
-          console.log(
-            "Creating page for product: ",
-            `/products/${node.productSlug}`
-          )
-          return createPage({
-            path: `/products/${node.productSlug}`,
-            component: require.resolve("./src/templates/product-template.js"),
-            context: {
-              id: node.id,
-            },
-            defer: true,
-          })
-        })
-      )
-    })
+  const productsPerPage = 50
+  const numPages = Math.ceil(products.length / productsPerPage)
+  const productsListTemplate = require.resolve(
+    `./src/templates/products-list.js`
   )
+
+  // Create paginated product listing pages
+  Array.from({ length: numPages }).forEach((_, i) => {
+    createPage({
+      path: i === 0 ? `/list` : `/list/page/${i + 1}`,
+      component: productsListTemplate,
+      context: {
+        limit: productsPerPage,
+        skip: i * productsPerPage,
+        numPages,
+        currentPage: i + 1,
+      },
+    })
+  })
+
+  chunkedProducts.map(productChunk => {
+    productChunk.map(({ node }) => {
+      console.log(
+        "Creating page for product: ",
+        `/products/${node.productSlug}`
+      )
+      return createPage({
+        path: `/products/${node.productSlug}`,
+        component: require.resolve("./src/templates/product-template.js"),
+        context: {
+          id: node.id,
+        },
+        defer: true,
+      })
+    })
+  })
 }
 
 exports.onCreateWebpackConfig = ({ actions, stage }) => {
