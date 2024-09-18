@@ -3,7 +3,7 @@ name: Build and Deploy Gatsby Site
 on:
   push:
     branches:
-      - main # Change to your default branch if necessary
+      - main
 
 jobs:
   build:
@@ -16,22 +16,59 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20" # Use your Gatsby version’s supported Node.js version
+          node-version: "20"
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Cache Gatsby build cache
+        id: cache-gatsby
+        uses: actions/cache@v3
+        with:
+          path: .cache
+          key: ${{ runner.os }}-gatsby-${{ hashFiles('gatsby-config.js') }}
+          restore-keys: |
+            ${{ runner.os }}-gatsby-
+
+      - name: Cache Gatsby public directory
+        id: cache-public
+        uses: actions/cache@v3
+        with:
+          path: public
+          key: ${{ runner.os }}-public-${{ hashFiles('gatsby-config.js') }}
+          restore-keys: |
+            ${{ runner.os }}-public-
 
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Build Gatsby site
         run: npm run build
 
-      - name: Deploy to S3
+      - name: Deploy assets to S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: |
-          aws s3 sync public/ s3://$S3_BUCKET_NAME --delete
+          aws s3 sync public/ s3://$S3_BUCKET_NAME --exclude "*.html" --delete --exact-timestamps
+
+      - name: Deploy HTML files to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+        run: |
+          aws s3 sync public/ s3://$S3_BUCKET_NAME --exclude "*" --include "*.html" --delete --exact-timestamps
 
       - name: Invalidate CloudFront cache
         env:
