@@ -115,7 +115,6 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
           id: node.id,
           productSlug: node.productSlug,
         },
-        defer: index > 0,
       })
     })
   })
