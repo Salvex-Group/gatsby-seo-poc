@@ -1,6 +1,3 @@
-const heapdump = require("heapdump")
-const { graphql } = require("gatsby")
-// Function to generate a single product record
 const generateProduct = index => {
   return {
     productName: `Product name ${index + 1}`,
@@ -12,7 +9,7 @@ const generateProduct = index => {
 
 // Generate 500,000 records
 const records = []
-const recordCount = 100000
+const recordCount = 1000
 
 for (let i = 0; i < recordCount; i++) {
   records.push(generateProduct(i))
@@ -121,9 +118,6 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
         defer: true,
       })
     })
-
-    // Generate heap snapshot after processing each chunk
-    heapdump.writeSnapshot(`./heapdump-${index}-${Date.now()}.heapsnapshot`)
   })
 }
 
