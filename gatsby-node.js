@@ -9,7 +9,7 @@ const generateProduct = index => {
 
 // Generate 500,000 records
 const records = []
-const recordCount = 50000
+const recordCount = 200000
 
 for (let i = 0; i < recordCount; i++) {
   records.push(generateProduct(i))
