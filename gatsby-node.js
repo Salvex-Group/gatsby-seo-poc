@@ -121,6 +121,7 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   })
 }
 
+// Webpack optimization for faster builds
 exports.onCreateWebpackConfig = ({ actions, stage }) => {
   if (stage === "build-javascript") {
     actions.setWebpackConfig({
@@ -128,7 +129,11 @@ exports.onCreateWebpackConfig = ({ actions, stage }) => {
         splitChunks: {
           chunks: "all",
         },
+        minimize: true,
+        usedExports: true, // Enable tree shaking
       },
+      cache: true,
+      parallelism: 2, // Adjust parallelism for your environment
     })
   }
 }
