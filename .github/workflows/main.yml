@@ -49,13 +49,14 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm install
 
-      - name: Print workspace path
-        run: |
-          echo "Workspace directory: $GITHUB_WORKSPACE"
+      - name: Build Gatsby site
+        run: npm run build
 
-      # Move the public directory to the /var/www/html
-      - name: Move public directory
-        run: mv public /var/www/html
+      - name: Print current directory
+        run: pwd
+
+      - name: Serve Gatsby site
+        run: npm run serve
 
       - name: Invalidate CloudFront cache
         env:
