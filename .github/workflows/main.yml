@@ -53,7 +53,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
         run: |
-          find public/ -type f | parallel -j 10 aws s3 cp {} s3://$S3_BUCKET/{/} --no-progress --exclude "*.DS_Store"
+          aws s3 sync public/ s3://$S3_BUCKET --endpoint-url https://$S3_BUCKET.s3-accelerate.amazonaws.com --no-progress --delete --exclude "*.DS_Store"
 
       - name: Invalidate CloudFront cache
         env:
