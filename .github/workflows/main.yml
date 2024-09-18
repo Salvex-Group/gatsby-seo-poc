@@ -50,6 +50,8 @@ jobs:
         run: npm install
 
       - name: Build Gatsby site
+        env:
+          GATSBY_LOG_LEVEL: error
         run: npm run build
 
       - name: Deploy to S3 with multi threading
