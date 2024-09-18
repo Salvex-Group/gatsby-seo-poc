@@ -36,32 +36,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gatsby-
 
-      - name: Cache Gatsby public directory
-        id: cache-public
-        uses: actions/cache@v3
-        with:
-          path: public
-          key: ${{ runner.os }}-public-${{ hashFiles('gatsby-config.js') }}
-          restore-keys: |
-            ${{ runner.os }}-public-
-
       - name: Install dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm install
 
-      - name: Build Gatsby site
+      - name: Build Gatsby site with optimized resources
         env:
-          GATSBY_LOG_LEVEL: error
+          GATSBY_CPU_COUNT: 4 # Since c5.xlarge has 4 vCPUs
+          NODE_OPTIONS: "--max_old_space_size=8192" # Allocate 8 GB of memory
         run: npm run build
 
-      - name: Deploy to S3 with multi threading
+      - name: Deploy to S3 with multi-threading
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
         run: |
-          aws s3 sync public/ s3://$S3_BUCKET --delete --size-only --no-progress --exclude "*.DS_Store"
+          aws s3 cp public/ s3://$S3_BUCKET --recursive --jobs 10 --exclude "*.DS_Store"
 
       - name: Invalidate CloudFront cache
         env:
