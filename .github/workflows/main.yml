@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -46,25 +46,10 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=8192" # Allocate 8 GB of memory
         run: npm run build
 
-      # Docker-related steps
-      - name: Log in to AWS ECR
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+      - name: Deploy nginx, move public folder and restart nginx
         run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
+          sudo cp -r public /var/www/html
 
-      - name: Build Docker image
-        run: docker build -t gatsby-site .
-
-      - name: Tag Docker image
-        run: docker tag gatsby-site:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/gatsby-site:latest
-
-      - name: Push Docker image to AWS ECR
-        run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/gatsby-site:latest
-
-      # Optional: Invalidate CloudFront cache if applicable
       - name: Invalidate CloudFront cache
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
