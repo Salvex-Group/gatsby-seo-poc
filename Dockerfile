@@ -1,12 +1,13 @@
 # Step 1: Use Node.js with required build dependencies
 FROM node:18-alpine AS build
 
-# Install build dependencies
+# Install build dependencies including libstdc++ and vips-dev (required for sharp)
 RUN apk add --no-cache \
     python3 \
     make \
     g++ \
-    vips-dev
+    vips-dev \
+    libstdc++
 
 # Set environment variable to use prebuilt binaries for sharp
 ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
