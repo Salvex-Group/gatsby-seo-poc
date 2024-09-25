@@ -18,34 +18,6 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Cache Gatsby build cache
-        id: cache-gatsby
-        uses: actions/cache@v3
-        with:
-          path: .cache
-          key: ${{ runner.os }}-gatsby-${{ hashFiles('gatsby-config.js') }}
-          restore-keys: |
-            ${{ runner.os }}-gatsby-
-
-      - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm install
-
-      - name: Build Gatsby site with optimized resources
-        env:
-          GATSBY_CPU_COUNT: 4 # Since c5.xlarge has 4 vCPUs
-          NODE_OPTIONS: "--max_old_space_size=8192" # Allocate 8 GB of memory
-        run: npm run build
-
       - name: Log in to Amazon ECR
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
