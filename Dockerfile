@@ -1,5 +1,18 @@
-# Step 1: Build the Gatsby site
+# Step 1: Use Node.js with required build dependencies
 FROM node:18-alpine AS build
+
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    vips-dev
+
+# Set environment variable to use prebuilt binaries for sharp
+ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
+
+# Set Python 3 as the default
+RUN ln -sf python3 /usr/bin/python
 
 # Set working directory
 WORKDIR /app
@@ -7,11 +20,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
-# Clean npm cache to avoid corruption
-RUN npm cache clean --force
-
-# Install dependencies with verbose output for debugging
-RUN npm install --verbose --unsafe-perm
+# Install dependencies
+RUN npm install --unsafe-perm
 
 # Copy the rest of the application
 COPY . .
