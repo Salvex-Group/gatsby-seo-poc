@@ -1,5 +1,5 @@
 # Step 1: Build the Gatsby site
-FROM node:18-alpine AS build  # Downgraded Node.js version if needed
+FROM node:18-alpine AS build
 
 # Set working directory
 WORKDIR /app
@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # Step 2: Serve the built Gatsby site with Nginx
-FROM nginx:alpine
+FROM nginx:alpine  # The second stage of the build
 
 # Remove the default Nginx static assets
 RUN rm -rf /usr/share/nginx/html/*
