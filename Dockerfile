@@ -1,5 +1,5 @@
 # Step 1: Build the Gatsby site
-FROM node:20-alpine AS build
+FROM node:18-alpine AS build  # Downgraded Node.js version if needed
 
 # Set working directory
 WORKDIR /app
@@ -7,14 +7,17 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm install
+# Clean npm cache to avoid corruption
+RUN npm cache clean --force
+
+# Install dependencies with verbose output for debugging
+RUN npm install --verbose --unsafe-perm
 
 # Copy the rest of the application
 COPY . .
 
 # Build the Gatsby site
-RUN npm run build > /dev/null 2>&1
+RUN npm run build
 
 # Step 2: Serve the built Gatsby site with Nginx
 FROM nginx:alpine
