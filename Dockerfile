@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # Step 2: Serve the built Gatsby site with Nginx
-FROM nginx:alpine  # The second stage of the build
+FROM nginx:alpine
 
 # Remove the default Nginx static assets
 RUN rm -rf /usr/share/nginx/html/*
