@@ -1,27 +1,32 @@
-# Step 1: Use an official Node.js image as the base
-FROM node:20 AS build
+# Step 1: Build the Gatsby site
+FROM node:20-alpine AS build
 
-# Step 2: Set the working directory
-WORKDIR /usr/src/app
+# Set working directory
+WORKDIR /app
 
-# Step 3: Copy package.json and package-lock.json into the container
-COPY package*.json ./
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
 
-# Step 4: Install dependencies
+# Install dependencies
 RUN npm install
 
-# Step 5: Copy the entire project into the container
+# Copy the rest of the application
 COPY . .
 
-# Step 6: Build the Gatsby site
-RUN npm run build
+# Build the Gatsby site
+RUN npm run build > /dev/null 2>&1
 
-# Step 7: Use an Nginx image to serve the built site
+# Step 2: Serve the built Gatsby site with Nginx
 FROM nginx:alpine
-COPY --from=build /usr/src/app/public /usr/share/nginx/html
 
-# Expose the port Nginx will run on
+# Remove the default Nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy Gatsby's build output from the 'build' stage
+COPY --from=build /app/public /usr/share/nginx/html
+
+# Expose port 80
 EXPOSE 80
 
-# Step 8: Start Nginx server
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
