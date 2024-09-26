@@ -13,6 +13,9 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy the public folder archive from the build context
 COPY ${PUBLIC_FOLDER} /tmp/public.tar.gz
 
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
 # Extract the public folder to Nginx's default static directory
 RUN tar -xzvf /tmp/public.tar.gz -C /usr/share/nginx/html
 
